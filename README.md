@@ -59,4 +59,8 @@ Danach eine **neue Sitzung** starten.
 
 ## Lizenz
 
-[PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/): frei für private und nicht-kommerzielle Nutzung. Kommerzielle Nutzung, Weiterverkauf oder das Einbauen in eigene Produkte bitte nur nach Absprache mit Sarah Göttinger.
+[PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) mit einer zusätzlichen Erlaubnis (siehe [LICENSE.md](LICENSE.md)):
+
+- ✅ Du darfst die Fokus-Pause privat **und für deine eigene Arbeit nutzen, auch im Job**.
+- ✅ Du darfst sie für dich anpassen.
+- ❌ Nicht ohne Absprache mit Sarah Göttinger: verkaufen, gegen Geld weitergeben oder in kommerzielle Produkte, Dienstleistungen, Trainings oder Programme einbauen.

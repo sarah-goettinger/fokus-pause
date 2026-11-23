@@ -1,5 +1,13 @@
 Required Notice: Copyright Sarah Göttinger (https://github.com/sarah-goettinger)
 
+## Zusätzliche Erlaubnis / Additional Permission
+
+**Deutsch:** Zusätzlich zur folgenden Lizenz erlaubt Sarah Göttinger Einzelpersonen, die Fokus-Pause für ihre eigene Arbeit zu nutzen, auch am Arbeitsplatz und im Rahmen einer beruflichen Tätigkeit. Nicht erlaubt bleiben ohne vorherige schriftliche Zustimmung: Verkauf, Vermietung oder Weitergabe der Software oder abgeleiteter Versionen gegen Entgelt, der Einbau in kommerzielle Produkte, Dienstleistungen, Trainings oder Programme sowie die Bereitstellung für Dritte als Teil eines kommerziellen Angebots.
+
+**English:** In addition to the license below, Sarah Göttinger permits individuals to use Fokus-Pause for their own work, including at their workplace and in the course of their profession. Without prior written consent, it remains not permitted to sell, rent or distribute the software or derived versions for a fee, to incorporate it into commercial products, services, trainings or programs, or to provide it to third parties as part of a commercial offering.
+
+---
+
 # PolyForm Noncommercial License 1.0.0
 
 <https://polyformproject.org/licenses/noncommercial/1.0.0>
