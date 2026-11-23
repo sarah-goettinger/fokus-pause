@@ -1,0 +1,12 @@
+{
+  "name": "fokus-pause",
+  "version": "0.10.0",
+  "description": "Panel neben dem Chat: kurze, nervensystemfreundliche Übungen, Rätsel und Check-ins, während Claude arbeitet – damit der Fokus bleibt und du bereit bist für die nächste Runde.",
+  "author": {
+    "name": "Sarah Göttinger"
+  },
+  "types": "./types/index.d.ts",
+  "homepage": "https://github.com/sarah-goettinger/fokus-pause",
+  "repository": "https://github.com/sarah-goettinger/fokus-pause",
+  "license": "PolyForm-Noncommercial-1.0.0"
+}

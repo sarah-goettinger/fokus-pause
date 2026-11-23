@@ -1,0 +1,13 @@
+{
+  "name": "fokus-pause",
+  "owner": {
+    "name": "Sarah Göttinger"
+  },
+  "plugins": [
+    {
+      "name": "fokus-pause",
+      "source": "./",
+      "description": "Panel neben dem Chat: kurze, nervensystemfreundliche Übungen, Rätsel und Check-ins, während Claude arbeitet – damit der Fokus bleibt und du bereit bist für die nächste Runde."
+    }
+  ]
+}
