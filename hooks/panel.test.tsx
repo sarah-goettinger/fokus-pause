@@ -431,3 +431,23 @@ test('kurz vor dem typischen Ende kommt die Rückkehr-Karte statt einer neuen Ü
   }
   expect(landed).toBe(true)
 })
+
+test('im Terminal (ohne Grafik) zeichnet jede Übungsart ohne Fehler', async ($, on) => {
+  const clock = await setup($, on)
+  let texts = 0
+  for (let i = 0; i < 60; i++) {
+    if (i > 0 && i % 5 === 0) {
+      await $.turn.complete({ answer: 'ok', durationMs: 300000, isAborted: false, turnId: `x${i}`, reason: 'answer' })
+      await $.turn.start({ text: 'Weiter', turnId: `x${i + 1}` })
+      await clock.advance(8000)
+    }
+    const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+    // Statt der Grafik steht der Text der Karte da.
+    if ((await ui.findAll({ type: 'Text' })).length > 0) texts += 1
+    expect(await ui.find({ type: 'Button', key: 'skip' })).toBeDefined()
+    await ui.press({ key: 'skip' })
+    await ui.unmount()
+    await clock.advance(1000)
+  }
+  expect(texts).toBe(60)
+})

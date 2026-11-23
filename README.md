@@ -21,18 +21,21 @@ Gebaut von **Sarah Göttinger**, als privates Projekt aus eigenem Bedarf.
 
 ## Installieren
 
-**Am einfachsten:** Kopiere diesen Text in Claude Code und schick ihn ab:
+**Am einfachsten:** Öffne in der Claude Desktop-App den Tab **„Code“**, kopiere diesen Text ins Chatfeld und schick ihn ab:
 
-> Installiere mir bitte das Plugin „fokus-pause“ von GitHub: Füge den Marketplace `sarah-goettinger/fokus-pause` hinzu und installiere daraus `fokus-pause` für meinen Benutzer. Sag mir danach, ob ich eine neue Sitzung starten muss.
+> Bitte installiere mir das Plugin „fokus-pause“. Führe dazu genau diesen Befehl im Terminal aus und sag mir das Ergebnis:
+> `C=$(command -v claude || ls -d "$HOME/Library/Application Support/Claude/claude-code/"*/*/claude.app/Contents/MacOS/claude | tail -1); "$C" plugin marketplace add sarah-goettinger/fokus-pause && "$C" plugin install fokus-pause@fokus-pause`
 
-**Oder selbst im Terminal:**
+Claude fragt dich eventuell, ob es den Befehl ausführen darf: einfach erlauben. Danach eine **neue Sitzung** starten.
+
+**Oder im Terminal** (wenn `claude` dort installiert ist):
 
 ```bash
 claude plugin marketplace add sarah-goettinger/fokus-pause
 claude plugin install fokus-pause@fokus-pause
 ```
 
-Danach eine **neue Sitzung** starten.
+**Falls ein Apple-Fenster „Entwicklerwerkzeuge installieren“ erscheint:** Das braucht der Mac einmalig, um das Plugin von GitHub zu laden. „Installieren“ klicken, warten, dann den Prompt noch einmal schicken.
 
 ## Voraussetzungen
 
@@ -44,6 +47,15 @@ Danach eine **neue Sitzung** starten.
 
 1. Im Chat `/fokus info` eingeben. Kommt „Fokus-Pause Version … · … Übungen in 4 Gruppen“, läuft es.
 2. Claude etwas Längeres fragen. Rechts öffnet sich das Panel.
+
+## Wenn etwas nicht klappt
+
+| Was passiert | Was hilft |
+|---|---|
+| `/fokus info` ist ein unbekannter Befehl | Neue Sitzung starten. Hilft das nicht: Claude-App aktualisieren (Menü Claude → Nach Updates suchen). Die Technik ist neu und kommt mit aktuellen Versionen. |
+| Installation meldet einen Fehler mit „marketplace“ oder „not allowed“ | Möglicherweise erlaubt deine Firma keine Plugins von außerhalb. Dann bitte die IT fragen. |
+| Das Fenster rechts erscheint nicht | Einen Prompt abschicken: Das Fenster öffnet sich beim Abschicken. Liegt rechts ein anderer Bereich davor (Dateien, Browser), nach dem Tab „Fokus-Pause“ schauen. |
+| Kein Ton | Der Ton funktioniert nur auf dem Mac. Und unter ⚙️ Anpassen prüfen, ob er an ist. |
 
 ## Bedienen
 
