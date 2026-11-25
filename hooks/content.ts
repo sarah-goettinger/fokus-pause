@@ -17,7 +17,7 @@ import { extraConnect } from './pools2'
 import { pickNew, pickNewMany } from './pools'
 import { EXTRA, EXTRA_EXERCISES } from './extra'
 import {
-  CLAUDE_TIPS, butterflyHug, capitalQuiz, clockQuiz, connectMoment, createMix, deskStretch, emojiQuiz,
+  CLAUDE_TIPS, GLOSSARY, butterflyHug, capitalQuiz, clockQuiz, connectMoment, createMix, deskStretch, emojiQuiz,
   grounding, innerSmile, journal, oppositeQuiz, palming, sayingQuiz, shakeOut, soundMap, thankBody, weekdayQuiz,
 } from './pools3'
 
@@ -210,7 +210,7 @@ const MOVES: Step[] = [
   { text: 'Handgelenke kreisen, Finger spreizen und schließen.', sec: 10 },
   { text: 'Ohr zur Schulter neigen – rechts halten, dann links.', sec: 14 },
   { text: 'Auf die Zehenspitzen gehen und langsam wieder absenken.', sec: 10 },
-  { text: 'Hände aneinander reiben, bis sie warm sind – und auf die Augen legen.', sec: 14 },
+  { text: 'Hände aneinander reiben, bis sie warm sind, und für drei Atemzüge auf die Augen legen. Dann weiterlesen.', sec: 16 },
   { text: 'Einmal kräftig gähnen und strecken wie eine Katze.', sec: 8 },
 ]
 
@@ -261,30 +261,19 @@ const colorHunt = (level: number): Step[] => {
 }
 
 const listen = (level: number): Step[] => {
-  const variants: Step[][] = [
-    [
-      { text: 'Schließ kurz die Augen.', sec: 4 },
-      { text: 'Welches ist das leiseste Geräusch, das du gerade hörst?', sec: 12 },
-      { text: 'Und welches ist am weitesten weg?', sec: 10 },
-    ],
-    [
-      { text: 'Schließ kurz die Augen.', sec: 4 },
-      { text: 'Was hörst du links von dir?', sec: 10 },
-      { text: 'Und was rechts?', sec: 10 },
-    ],
-    [
-      { text: 'Schließ kurz die Augen.', sec: 4 },
-      { text: 'Hör auf die Stille zwischen den Geräuschen.', sec: 14 },
-      { text: 'Wie lang ist die längste Lücke?', sec: 8 },
-    ],
-    [
-      { text: 'Schließ kurz die Augen.', sec: 4 },
-      { text: 'Folge einem einzigen Geräusch, bis es verklingt.', sec: 14 },
-      { text: 'Und dann dem nächsten.', sec: 8 },
-    ],
+  // Mit geschlossenen Augen kann man nicht lesen: erst alles lesen, dann Augen zu.
+  const back = 'Öffne die Augen, wenn du so weit bist. Spätestens holt dich der sanfte Klang zurück, wenn Claude fertig ist.'
+  const sec = level >= 3 ? 40 : 28
+  const v = pick([
+    { task: 'Finde das leiseste Geräusch – und dann das, das am weitesten weg ist.', after: 'Was war das leiseste Geräusch?' },
+    { task: 'Hör erst nach links, dann nach rechts. Was ist wo?', after: 'Welche Seite war lauter?' },
+    { task: 'Hör auf die Stille zwischen den Geräuschen.', after: 'Wie lang war die längste Lücke?' },
+    { task: 'Folge einem einzigen Geräusch, bis es verklingt. Dann dem nächsten.', after: 'Welchem Geräusch bist du gefolgt?' },
+  ])
+  return [
+    { text: `Lies erst, dann Augen zu: ${v.task} ${back}`, sec },
+    { text: v.after, sec: 8 },
   ]
-  const v = pick(variants)
-  return level >= 3 ? v.map(s => ({ ...s, sec: Math.round(s.sec * 1.4) })) : v
 }
 
 const farView = (level: number): Step[] => {
@@ -385,13 +374,9 @@ const sip = (level: number): Step[] => [
 const PLACES = ['einen Strand am frühen Morgen', 'einen Wald nach dem Regen', 'einen Berggipfel mit weiter Sicht', 'dein Lieblingscafé', 'einen Garten im Sommer', 'eine Wiese am Abend']
 const calmPlace = (level: number): Step[] => {
   const place = pick(PLACES)
-  const sec = level >= 3 ? 13 : 10
   return [
-    { text: `Schließ die Augen und stell dir ${place} vor.`, sec: 8 },
-    { text: 'Was siehst du dort? Farben, Licht, Formen.', sec },
-    { text: 'Was hörst du?', sec },
-    { text: 'Wie riecht es dort? Wie fühlt sich die Luft an?', sec },
-    { text: 'Bleib noch einen Moment. Dieser Ort ist immer für dich da.', sec: sec + 4 },
+    { text: `Gleich darfst du die Augen schließen. Stell dir dann ${place} vor: Was siehst du, was hörst du, wie riecht es, wie fühlt sich die Luft an?`, sec: 12 },
+    { text: `Augen zu und los. Bleib dort, solange es guttut. Dieser Ort ist immer für dich da. Öffne die Augen, wenn du so weit bist. Spätestens holt dich der sanfte Klang zurück, wenn Claude fertig ist.`, sec: level >= 3 ? 60 : 45 },
   ]
 }
 
@@ -558,7 +543,9 @@ export const EXERCISES: Exercise[] = [
 
   // Neugier & Wissen
   { id: 'aifact', cat: 'learn', kind: 'fact', title: 'KI-Fun-Fact', look: 'learn', isShort: true, fact: () => pickNew([...AI_FACTS, ...EXTRA.aiFacts], f => f.text) },
-  { id: 'aitip', cat: 'learn', kind: 'fact', title: 'Claude-Tipp', look: 'learn', isShort: true, fact: () => pickNew([...CLAUDE_TIPS, ...AI_TIPS, ...EXTRA.aiTips], f => f.text) },
+  { id: 'aitip', cat: 'learn', kind: 'fact', title: 'Claude-Tipp', look: 'learn', isShort: true, fact: () => pickNew([...CLAUDE_TIPS.filter(t => t.source !== 'Claude-Code-Tipp'), ...AI_TIPS, ...EXTRA.aiTips.filter(t => t.source !== 'Claude-Code-Tipp')], f => f.text) },
+  { id: 'cctip', cat: 'learn', kind: 'fact', title: 'Claude-Code-Tipp', look: 'learn', isShort: true, fact: () => pickNew([...CLAUDE_TIPS, ...EXTRA.aiTips].filter(t => t.source === 'Claude-Code-Tipp'), f => f.text) },
+  { id: 'glossar', cat: 'learn', kind: 'fact', title: 'KI-Begriff erklärt', look: 'learn', isShort: true, fact: () => pickNew(GLOSSARY, f => f.text) },
   { id: 'funfact', cat: 'learn', kind: 'fact', title: 'Wusstest du …?', look: 'learn', isShort: true, fact: () => pickNew([...FUN_FACTS, ...EXTRA.funFacts], f => f.text) },
   { id: 'word', cat: 'learn', kind: 'fact', title: 'Schönes Wort', look: 'learn', isShort: true, fact: () => pickNew([...RARE_WORDS, ...EXTRA.words], f => f.text) },
   { id: 'truefalse', cat: 'learn', kind: 'pick', title: 'Wahr oder falsch?', look: 'learn', rounds: trueFalse },
@@ -795,7 +782,12 @@ export type Verdict = { isGood: boolean; headline: string; detail: string }
 export const judge = (ex: Exercise, made: Made, answer: string): Verdict => {
   switch (ex.kind) {
     case 'quiz': {
-      const ok = made.solution.split('|').some(a => norm(a) === norm(answer) && norm(a) !== '')
+      // Genau getroffen, oder (bei längeren Antworten) mit ein paar Wörtern drumherum.
+      const given = norm(answer)
+      const ok = made.solution.split('|').some(a => {
+        const want = norm(a)
+        return want !== '' && (given === want || (want.length >= 5 && given.includes(want)))
+      })
       return { isGood: ok, headline: ok ? 'Richtig!' : 'Auflösung', detail: made.data[2] ?? '' }
     }
     case 'blitz': {

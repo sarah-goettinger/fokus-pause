@@ -42,21 +42,50 @@ export const CLAUDE_TIPS: Fact[] = [
   { text: 'Stimmt der Ton nicht? Gib Claude zwei, drei Sätze, die nach dir klingen, als Stilvorlage.', source: 'Claude-Tipp' },
   { text: 'Bitte am Ende: „Fass die Ergebnisse in drei Sätzen für jemanden zusammen, der nicht dabei war.“', source: 'Claude-Tipp' },
   { text: 'Wenn du nicht weißt, wie du fragen sollst: „Hilf mir, eine gute Anfrage für dieses Ziel zu formulieren.“', source: 'Claude-Tipp' },
+  { text: 'Claude Code: Mit @ und einem Dateinamen zeigst du Claude direkt, welche Datei es lesen soll.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: Screenshots einfach ins Eingabefeld ziehen oder einfügen – etwa eine Fehlermeldung oder eine Folie.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: Ein Skill ist ein Ordner mit einer SKILL.md. Claude lädt ihn, sobald die Aufgabe dazu passt.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: Bitte am Ende: „Schreib die wichtigsten Erkenntnisse in die CLAUDE.md.“ Dann weiß die nächste Sitzung davon.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: Für breite Recherchen kann Claude Subagenten losschicken, die parallel suchen und nur das Ergebnis zurückbringen.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: Frühere Sitzungen findest du in der Seitenleiste – dort kannst du einfach weitermachen.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: „Erst planen, noch nichts ändern“ – so siehst du den Vorschlag, bevor Dateien angefasst werden.', source: 'Claude-Code-Tipp' },
+  { text: 'Claude Code: Lass Claude seine Arbeit selbst prüfen: „Teste das und zeig mir das Ergebnis, bevor du fertig meldest.“', source: 'Claude-Code-Tipp' },
+]
+
+export const GLOSSARY: Fact[] = [
+  { text: 'Prompt: die Anweisung oder Frage, die du einem KI-Modell gibst. Je klarer Ziel, Kontext und Format, desto besser die Antwort.', source: 'KI-Begriff' },
+  { text: 'System-Prompt: Anweisungen im Hintergrund, die festlegen, wie sich ein Assistent grundsätzlich verhält – noch bevor du etwas fragst.', source: 'KI-Begriff' },
+  { text: 'Agent: ein KI-System, das nicht nur antwortet, sondern selbst Schritte plant und Werkzeuge nutzt, um eine Aufgabe zu erledigen.', source: 'KI-Begriff' },
+  { text: 'Tool-Nutzung: Das Modell ruft Werkzeuge auf – etwa eine Websuche, einen Taschenrechner oder ein Programm – statt alles aus dem Gedächtnis zu beantworten.', source: 'KI-Begriff' },
+  { text: 'RAG (Retrieval-Augmented Generation): Vor der Antwort werden passende Dokumente gesucht und mitgegeben, damit das Modell sich auf echte Quellen stützt.', source: 'KI-Begriff' },
+  { text: 'Fine-Tuning: Ein bereits trainiertes Modell wird mit zusätzlichen Beispielen für eine bestimmte Aufgabe oder einen Stil nachtrainiert.', source: 'KI-Begriff' },
+  { text: 'Multimodal: Ein Modell versteht nicht nur Text, sondern auch Bilder, Audio oder andere Formate.', source: 'KI-Begriff' },
+  { text: 'Inferenz: das Anwenden eines fertig trainierten Modells – also jedes Mal, wenn es dir eine Antwort erzeugt.', source: 'KI-Begriff' },
+  { text: 'Parameter: die gelernten Zahlenwerte in einem neuronalen Netz. Große Sprachmodelle haben davon viele Milliarden.', source: 'KI-Begriff' },
+  { text: 'Benchmark: ein standardisierter Test, mit dem man Modelle vergleicht – etwa beim Programmieren oder Rechnen.', source: 'KI-Begriff' },
+  { text: 'Open-Weight-Modell: Die trainierten Gewichte sind öffentlich. Man kann das Modell selbst betreiben und anpassen.', source: 'KI-Begriff' },
+  { text: 'Few-Shot: Du gibst dem Modell ein paar Beispiele im Prompt mit, damit es das Muster übernimmt. Zero-Shot heißt: ganz ohne Beispiele.', source: 'KI-Begriff' },
+  { text: 'Guardrails: Leitplanken, die verhindern sollen, dass ein KI-System Schaden anrichtet oder unerwünschte Inhalte erzeugt.', source: 'KI-Begriff' },
+  { text: 'Destillation: Ein kleines Modell lernt von einem großen. Es wird dadurch schneller und günstiger, verliert aber etwas Können.', source: 'KI-Begriff' },
+  { text: 'Latenz: die Wartezeit, bis eine Antwort beginnt. Genau die Zeit, die du gerade sinnvoll nutzt. 😉', source: 'KI-Begriff' },
 ]
 
 // --- Rätsel & Spiele ---------------------------------------------------------
 
 const CAPITALS: [string, string, string[]][] = [
-  ['Österreich', 'Wien', []], ['der Schweiz', 'Bern', []], ['Frankreich', 'Paris', []], ['Italien', 'Rom', []],
-  ['Spanien', 'Madrid', []], ['Portugal', 'Lissabon', []], ['den Niederlanden', 'Amsterdam', []], ['Belgien', 'Brüssel', []],
+  ['der Schweiz', 'Bern', []], ['Portugal', 'Lissabon', []], ['den Niederlanden', 'Amsterdam', []], ['Belgien', 'Brüssel', []],
   ['Dänemark', 'Kopenhagen', []], ['Schweden', 'Stockholm', []], ['Norwegen', 'Oslo', []], ['Finnland', 'Helsinki', []],
-  ['Polen', 'Warschau', []], ['Tschechien', 'Prag', []], ['Ungarn', 'Budapest', []], ['Griechenland', 'Athen', []],
-  ['Irland', 'Dublin', []], ['Kroatien', 'Zagreb', []], ['Slowenien', 'Ljubljana', []], ['der Slowakei', 'Bratislava', []],
+  ['Polen', 'Warschau', []], ['Tschechien', 'Prag', []], ['Ungarn', 'Budapest', []], ['Irland', 'Dublin', []], ['Kroatien', 'Zagreb', []], ['Slowenien', 'Ljubljana', []], ['der Slowakei', 'Bratislava', []],
   ['Rumänien', 'Bukarest', []], ['Bulgarien', 'Sofia', []], ['Estland', 'Tallinn', []], ['Lettland', 'Riga', []],
   ['Litauen', 'Vilnius', ['wilna']], ['Island', 'Reykjavík', ['reykjavik']], ['Kanada', 'Ottawa', []], ['Australien', 'Canberra', []],
-  ['Brasilien', 'Brasília', ['brasilia']], ['Japan', 'Tokio', ['tokyo']], ['Südkorea', 'Seoul', []], ['Ägypten', 'Kairo', []],
+  ['Brasilien', 'Brasília', ['brasilia']], ['Südkorea', 'Seoul', []], ['Ägypten', 'Kairo', []],
   ['Marokko', 'Rabat', []], ['Kenia', 'Nairobi', []], ['Argentinien', 'Buenos Aires', []], ['Neuseeland', 'Wellington', []],
   ['der Türkei', 'Ankara', []], ['Indien', 'Neu-Delhi', ['delhi', 'newdelhi']], ['Vietnam', 'Hanoi', []], ['Peru', 'Lima', []],
+  ['Kasachstan', 'Astana', []], ['Nigeria', 'Abuja', []], ['Pakistan', 'Islamabad', []], ['Tansania', 'Dodoma', []],
+  ['Montenegro', 'Podgorica', []], ['Albanien', 'Tirana', []], ['Nordmazedonien', 'Skopje', []], ['Moldau', 'Chișinău', ['chisinau', 'kischinau']],
+  ['Georgien', 'Tiflis', ['tbilisi']], ['Armenien', 'Jerewan', ['eriwan', 'yerevan']], ['Aserbaidschan', 'Baku', []], ['der Mongolei', 'Ulaanbaatar', ['ulanbator', 'ulaanbator']],
+  ['Myanmar', 'Naypyidaw', ['naypyitaw']], ['Malta', 'Valletta', []], ['Luxemburg', 'Luxemburg', []], ['Chile', 'Santiago de Chile', ['santiago']],
+  ['Kolumbien', 'Bogotá', ['bogota']], ['Ecuador', 'Quito', []], ['Uruguay', 'Montevideo', []], ['Ghana', 'Accra', []],
 ]
 
 export const capitalQuiz = (): Quiz => {
@@ -65,19 +94,22 @@ export const capitalQuiz = (): Quiz => {
 }
 
 const OPPOSITES: [string, string[]][] = [
-  ['hell', ['dunkel', 'finster']], ['laut', ['leise', 'still']], ['schnell', ['langsam']], ['früh', ['spät']],
-  ['mutig', ['ängstlich', 'feige', 'zaghaft']], ['großzügig', ['geizig', 'knauserig']], ['ordentlich', ['unordentlich', 'chaotisch']],
-  ['gesprächig', ['schweigsam', 'wortkarg', 'still']], ['Ebbe', ['Flut']], ['Anfang', ['Ende', 'Schluss']], ['Krieg', ['Frieden']],
-  ['Freund', ['Feind']], ['kaufen', ['verkaufen']], ['erinnern', ['vergessen']], ['Sieg', ['Niederlage']],
-  ['Ankunft', ['Abfahrt', 'Abreise', 'Abflug']], ['Lob', ['Tadel', 'Kritik']], ['selten', ['häufig', 'oft']],
-  ['eckig', ['rund']], ['leicht', ['schwer', 'schwierig']], ['Mangel', ['Überfluss', 'Fülle']], ['ernst', ['lustig', 'heiter', 'albern']],
-  ['Ebene', ['Gebirge', 'Berg']], ['flüstern', ['schreien', 'rufen', 'brüllen']], ['Ordnung', ['Chaos', 'Unordnung']],
-  ['nüchtern', ['betrunken', 'beschwipst']], ['Vorteil', ['Nachteil']], ['bitter', ['süß']], ['Ursache', ['Wirkung', 'Folge']],
+  ['konkav', ['konvex']], ['Inflation', ['Deflation']], ['Zenit', ['Nadir']], ['Prolog', ['Epilog']],
+  ['Altruismus', ['Egoismus']], ['introvertiert', ['extrovertiert', 'extravertiert']], ['explizit', ['implizit']],
+  ['subjektiv', ['objektiv']], ['Mikrokosmos', ['Makrokosmos']], ['Konsens', ['Dissens']], ['homogen', ['heterogen']],
+  ['Monolog', ['Dialog']], ['zentral', ['dezentral']], ['akut', ['chronisch']], ['synchron', ['asynchron']],
+  ['Hochmut', ['Demut']], ['Fluch', ['Segen']], ['Diesseits', ['Jenseits']], ['induktiv', ['deduktiv']],
+  ['Aufwand', ['Ertrag', 'Nutzen']], ['Soll', ['Haben']], ['Import', ['Export']], ['Theorie', ['Praxis']],
+  ['progressiv', ['konservativ', 'regressiv']], ['Optimist', ['Pessimist']], ['abstrakt', ['konkret']],
+  ['Hypertonie', ['Hypotonie']], ['quantitativ', ['qualitativ']], ['Divergenz', ['Konvergenz']],
+  ['latent', ['manifest', 'offensichtlich']], ['ephemer', ['dauerhaft', 'beständig', 'ewig']], ['Antithese', ['These']],
+  ['zentrifugal', ['zentripetal']], ['Anode', ['Kathode']], ['Synonym', ['Antonym']],
 ]
+
 
 export const oppositeQuiz = (): Quiz => {
   const [word, opp] = pickNew(OPPOSITES, o => o[0])
-  return { q: `Was ist das Gegenteil von „${word}“?`, accept: opp, show: opp.join(' / '), hint: `Es beginnt mit „${opp[0]?.[0] ?? ''}“.` }
+  return { q: `Was ist das Gegenteil von „${word}“? (Achtung, etwas kniffliger)`, accept: opp, show: opp.join(' / '), hint: `Es beginnt mit „${opp[0]?.[0] ?? ''}“ und hat ${opp[0]?.length ?? 0} Buchstaben.` }
 }
 
 const SAYINGS: [string, string, string[]][] = [
@@ -107,7 +139,12 @@ const SAYINGS: [string, string, string[]][] = [
 
 export const sayingQuiz = (): Quiz => {
   const [start, end, more] = pickNew(SAYINGS, s => s[0])
-  return { q: `Wie geht das Sprichwort weiter? „${start}“`, accept: [end, ...more], show: `${start.replace(' …', '')} ${end}.`, hint: `Es fängt an mit „${end.split(' ')[0] ?? ''}“.` }
+  const head = start.replace(' …', '')
+  // Jedes zweite Mal andersherum: Wie fängt es an? Das ist deutlich kniffliger.
+  if (Math.random() < 0.5) {
+    return { q: `Wie fängt das Sprichwort an? „… ${end}“`, accept: [head], show: `${head} ${end}.`, hint: `Es beginnt mit „${head.split(' ')[0] ?? ''}“.` }
+  }
+  return { q: `Wie geht das Sprichwort weiter? „${start}“`, accept: [end, ...more], show: `${head} ${end}.`, hint: `Es fängt an mit „${end.split(' ')[0] ?? ''}“.` }
 }
 
 const EMOJIS: [string, string, string[]][] = [
@@ -163,9 +200,11 @@ const v = <T,>(list: readonly T[]) => pick(list)
 
 export const palming = (level: number): Step[] => [
   { text: 'Reib deine Handflächen aneinander, bis sie warm werden.', sec: 8 },
-  { text: 'Leg sie sanft über die geschlossenen Augen, ohne zu drücken.', sec: 6 },
-  { text: v(['Genieß die Dunkelheit und die Wärme.', 'Lass die Augen in der Dunkelheit ausruhen.', 'Spür, wie die Augenmuskeln weich werden.']), sec: level >= 3 ? 25 : 18 },
-  { text: 'Nimm die Hände langsam weg und öffne die Augen ganz sanft.', sec: 6 },
+  {
+    text: `Lies erst, dann Augen zu: Leg die warmen Hände sanft über die geschlossenen Augen, ohne zu drücken. ${v(['Genieß die Dunkelheit und die Wärme.', 'Lass die Augen in der Dunkelheit ausruhen.', 'Spür, wie die Augenmuskeln weich werden.'])} Nach fünf ruhigen Atemzügen nimmst du die Hände langsam weg.`,
+    sec: level >= 3 ? 40 : 30,
+  },
+  { text: 'Wie fühlen sich deine Augen jetzt an?', sec: 8 },
 ]
 
 export const shakeOut = (level: number): Step[] => [
@@ -179,10 +218,11 @@ export const shakeOut = (level: number): Step[] => [
 ]
 
 export const soundMap = (level: number): Step[] => [
-  { text: 'Schließ die Augen. Stell dir vor, du malst eine Landkarte aus Geräuschen.', sec: 8 },
-  { text: v(['Was hörst du direkt vor dir?', 'Was hörst du hinter dir?', 'Was hörst du über dir?']), sec: 12 },
-  { text: v(['Und links? Und rechts?', 'Was ist ganz nah, was ganz fern?', 'Welches Geräusch ist am gleichmäßigsten?']), sec: 12 },
-  { text: level >= 3 ? 'Halte alle Punkte deiner Landkarte gleichzeitig.' : 'Öffne die Augen wieder.', sec: level >= 3 ? 15 : 5 },
+  {
+    text: `Lies erst, dann Augen zu: Male im Kopf eine Landkarte aus Geräuschen. ${v(['Was ist vor dir, was hinter dir?', 'Was ist links, was rechts?', 'Was ist ganz nah, was ganz fern?'])}${level >= 3 ? ' Halte am Ende alle Punkte gleichzeitig.' : ''} Öffne die Augen, wenn du so weit bist. Spätestens holt dich der sanfte Klang zurück, wenn Claude fertig ist.`,
+    sec: level >= 3 ? 45 : 32,
+  },
+  { text: v(['Welches Geräusch hat dich überrascht?', 'Welches Geräusch war am gleichmäßigsten?']), sec: 8 },
 ]
 
 export const thankBody = (level: number): Step[] => {

@@ -1,5 +1,13 @@
 # Fokus-Pause – Was neu ist
 
+## 0.10.4
+- Übungen mit geschlossenen Augen: alle Anweisungen kommen vorher („Lies erst, dann Augen zu: …“), der sanfte Klang holt dich zurück.
+- Rätsel anspruchsvoller: schwerere Gegenteile, schwerere Hauptstädte, Sprichwörter auch rückwärts. Antworten mit ein paar Wörtern drumherum zählen auch.
+- Keine Wiederholung am Tag: Rätsel, Wissen und Kreatives höchstens einmal, Achtsamkeit & Körper zweimal (Atmung dreimal). Ist eine Gruppe durch, kommen die anderen.
+- Neu: „KI-Begriff erklärt“ und „Claude-Code-Tipp“ als eigene Übungen, 8 neue Claude-Code-Tipps.
+- Rückkehr-Karte nur noch beim echten Ende, schlank: Kurzfassung deines Prompts plus Feld, das per Klick ins Chatfeld schreibt. Zwischen Übungen eine kurze Atempause.
+- Karten als Bild eingebettet, damit sie mit der Panelbreite wachsen.
+
 ## 0.10.1
 - Die Übungskarten füllen die ganze Breite des Panels und wachsen mit, wenn du den Bereich breiter ziehst.
 

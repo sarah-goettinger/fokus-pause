@@ -81,7 +81,7 @@ export const EXTRA_EXERCISES: (Exercise & { addedAt: string })[] = [
   {
     id: 'count-breath', cat: 'mind', kind: 'steps', title: 'Atemzüge zählen', look: 'mind', addedAt: '2026-11-23',
     steps: (level: number) => [
-      { text: 'Setz dich bequem hin. Der Blick darf sinken, die Augen dürfen sich schließen.', sec: 7 },
+      { text: 'Setz dich bequem hin. Der Blick darf weich werden und sinken – die Augen bleiben offen, damit du mitlesen kannst.', sec: 7 },
       { text: 'Zähl beim nächsten Ausatmen still: eins.', sec: 8 },
       {
         text: pick([

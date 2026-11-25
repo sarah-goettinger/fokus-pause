@@ -40,7 +40,7 @@ import { beginPick, pickedKeys } from './pools'
 
 const PANE = 'fokus-pause'
 // Steht nach dem Laden im Store („loaded“): so lässt sich prüfen, welche Version läuft.
-const VERSION = '10.2'
+const VERSION = '10.5'
 const TITLE = 'Fokus-Pause'
 // Erst nach so vielen Sekunden aufgehen, damit kurze Antworten nicht stören.
 const OPEN_DELAY_MS = 6000
@@ -144,6 +144,30 @@ let isStepping = false
 let stimulating = 0
 // Die echte Pause kommt höchstens einmal pro Wartezeit.
 let isBreakShown = false
+// Atempause zwischen zwei Übungen: bis wann (ms).
+let breathUntil = 0
+// Die zuletzt gestartete Übung (auch während der Atempause bekannt).
+let lastStartedId: string | undefined
+const BREATH_MS = 5000
+
+/** Was advance() sonst am Ende einer Übung tut: Stufen, Überspringen-Zähler. */
+const rememberDone = async ($: $, done: Run) => {
+  const skips = asNumberMap(await $.store.get('skips'))
+  skips[done.id] = Math.max(0, (skips[done.id] ?? 0) - 0.5)
+  await $.store.set('skips', skips)
+  const ex = byId(done.id)
+  if (isPractice(ex)) {
+    const practice = asNumberMap(await $.store.get('practice'))
+    const count = (practice[ex.id] ?? 0) + 1
+    practice[ex.id] = count
+    await $.store.set('practice', practice)
+    const up = levelOf(count)
+    if (up > done.level) $.ui.toast(`🌱 ${ex.title}: Stufe ${up} „${LEVEL_NAMES[up]}“ erreicht`)
+  }
+}
+
+// Wie breit das Panel zuletzt gezeichnet wurde (Spalten), zur Fehlersuche.
+let lastColumns = 0
 // Die Rückkehr-Karte kam schon vor dem Ende, weil es absehbar Richtung Ende ging.
 let isEarlyLanding = false
 // Welche Übungen diese Pause zeigte: für die Bereitschafts-Frage am Ende.
@@ -186,6 +210,14 @@ const typicalWait = async ($: $): Promise<number | undefined> => {
 const savePad = async ($: $, text: string) => {
   const t = text.trim().slice(0, 2000)
   await update($, notes, n => ({ ...n, prompt: t }))
+}
+
+/** Nächsten Prompt merken und direkt ins Chatfeld schreiben: ein Klick. */
+const padToChat = async ($: $, text: string) => {
+  const t = text.trim()
+  if (t === '') return
+  await savePad($, t)
+  await fillPrompt($)
 }
 
 /** Den notierten Prompt in die Chat-Eingabe übernehmen. */
@@ -241,7 +273,7 @@ const choose = async ($: $): Promise<Exercise> => {
   const groupSeen = asNumberMap(await $.store.get('groupSeen'))
   const catSeen = asNumberMap(await $.store.get('catSeen'))
   const now = await $.clock.now()
-  const last = (await read($, run))?.id
+  const last = (await read($, run))?.id ?? lastStartedId
   const pref = await loadPrefs($)
   const off = pref.offGroups ?? []
   const elapsed = (now - (await read($, startedAt))) / 1000
@@ -253,7 +285,7 @@ const choose = async ($: $): Promise<Exercise> => {
     return byId('realbreak')
   }
   // Den nächsten Schritt fragen wir in längeren Pausen einmal, als dritte Übung.
-  if (slot === 2 && written.next === '' && !off.includes('create') && (today.next ?? 0) < 2) return byId('next')
+  if (slot === 2 && written.next === '' && !off.includes('create') && (today.next ?? 0) < 1) return byId('next')
 
   let pool = EXERCISES.filter(
     ex => ex.isSpecial !== true && !(ex.kind === 'note' && (written[ex.key] ?? '') !== ''),
@@ -277,10 +309,16 @@ const choose = async ($: $): Promise<Exercise> => {
   // Gegen Wiederholung: nichts von den letzten 25 Übungen, und jede Übung
   // höchstens zweimal am Tag (Atemübungen dreimal). Erst wenn gar nichts
   // mehr übrig ist, wird gelockert.
-  const limit = (ex: Exercise) => (ex.kind === 'breathe' ? 3 : 2)
+  // Rätsel, Wissen und Kreatives höchstens einmal am Tag; Achtsamkeit & Körper
+  // (Atmen, Bewegen, Check-ins, Pausen) zweimal, Atemübungen dreimal. Ist eine
+  // Gruppe für heute durch, kommen eben die anderen dran. Erst wenn alles durch
+  // ist, wird wiederholt – und dann zuerst Achtsamkeit.
+  const isMindful = (ex: Exercise) => groupOf(ex.cat) === 'mind'
+  const limit = (ex: Exercise) => (ex.kind === 'breathe' ? 3 : isMindful(ex) ? 2 : 1)
   const fresh = pool.filter(ex => !recent.includes(ex.id) && (today[ex.id] ?? 0) < limit(ex))
   const underLimit = pool.filter(ex => (today[ex.id] ?? 0) < limit(ex))
-  pool = fresh.length > 0 ? fresh : underLimit.length > 0 ? underLimit : pool
+  const mindful = pool.filter(isMindful)
+  pool = fresh.length > 0 ? fresh : underLimit.length > 0 ? underLimit : mindful.length > 0 ? mindful : pool
 
   // Gruppe wählen: alle Gruppen gleich gern, zu jeder Tageszeit. Je länger eine
   // nicht dran war, desto wahrscheinlicher; nie zweimal dieselbe hintereinander.
@@ -389,6 +427,7 @@ const start = async ($: $, ex: Exercise) => {
   await update($, seconds, () => 0)
   await update($, run, () => next)
   slot += 1
+  lastStartedId = ex.id
   if (!ex.isSpecial) shown = [...shown.filter(id => id !== ex.id), ex.id]
   const recent = asStrings(await $.store.get('recent')).filter(id => id !== ex.id)
   await $.store.set('recent', [ex.id, ...recent].slice(0, 25))
@@ -610,27 +649,24 @@ const REFOCUS_GENERIC = [
 
 /** Zwei Fragen, die zum Auftrag zurückführen: erst allgemeine, dann passende vom Modell. */
 const prepareRefocus = async ($: $, request: string) => {
-  const generic = [...REFOCUS_GENERIC].sort(() => Math.random() - 0.5).slice(0, 2)
-  await update($, refocus, () => generic)
-  if (request.trim().length < 12) return
+  // Erst eine schlichte Kurzfassung, dann (wenn möglich) eine bessere vom Modell.
+  const plain = short(request, 140)
+  await update($, refocus, () => (plain === '' ? [] : [plain]))
+  if (request.trim().length < 40) return
   try {
     const r = await $.model.complete({
       model: 'claude-haiku-5-5',
-      maxTokens: 160,
+      maxTokens: 80,
       timeoutMs: 25000,
       system:
-        'Du hilfst einer Person, nach einer kurzen Wartepause gedanklich zu ihrem Auftrag zurückzukehren. Antworte nur mit genau zwei kurzen Fragen auf Deutsch, du-Form, je höchstens 15 Wörter, je eine Zeile, ohne Nummerierung, ohne Einleitung.',
-      prompt: `Die Person wartet, während ein KI-Assistent an diesem Auftrag arbeitet:\n<auftrag>\n${request.slice(0, 1500)}\n</auftrag>\nFormuliere zwei Fragen, die ihr helfen, wieder in das Thema einzusteigen und die Antwort gleich gut aufzunehmen (z. B. was sie erwartet, worauf sie achten will, was sie danach damit macht).`,
+        'Fasse den Auftrag einer Person an einen KI-Assistenten in einem einzigen kurzen Satz auf Deutsch zusammen, höchstens 15 Wörter, ohne Einleitung, ohne Anführungszeichen. Beginne mit einem Verb oder Substantiv, nicht mit „Du“.',
+      prompt: `<auftrag>\n${request.slice(0, 2000)}\n</auftrag>`,
     })
     if (!r.isAnswered) return
-    const qs = r.text
-      .split('\n')
-      .map(l => l.replace(/^[\s\-–•*\d.)]+/, '').trim())
-      .filter(l => l.endsWith('?') && l.length > 8 && l.length < 160)
-      .slice(0, 2)
-    if (qs.length === 2) await update($, refocus, () => qs)
+    const line = r.text.split('\n').map(l => l.trim()).find(l => l.length > 5) ?? ''
+    if (line.length > 5 && line.length < 200) await update($, refocus, () => [line.replace(/^[„"]|[“"]$/g, '')])
   } catch {
-    // Dann bleiben die allgemeinen Fragen.
+    // Dann bleibt die schlichte Kurzfassung.
   }
 }
 
@@ -654,13 +690,17 @@ const close = async ($: $) => {
  * typischen Wartezeit), keine neue Übung mehr, sondern schon die Rückkehr-Karte.
  */
 const afterExercise = async ($: $, elapsed: number, typical: number | undefined) => {
-  if (typical !== undefined && slot > 0 && elapsed >= typical - 20 && elapsed <= typical + 45) {
-    await flushBreath($)
-    isEarlyLanding = true
-    await update($, isLanding, () => true)
-    return
-  }
-  await advance($, false)
+  // Die Rückkehr-Karte kommt nur noch beim echten Signal (Claude beginnt die
+  // Schlussantwort). Damit kurz davor keine neue Übung aufblitzt, liegt zwischen
+  // zwei Übungen eine kurze Atempause; kommt das Ende genau dann, geht es direkt
+  // zur Rückkehr-Karte.
+  void elapsed
+  void typical
+  await flushBreath($)
+  const now = await read($, run)
+  if (now !== null) await rememberDone($, now)
+  await update($, run, () => null)
+  breathUntil = (await $.clock.now()) + BREATH_MS
 }
 
 // --- Der Takt: einmal pro Sekunde --------------------------------------
@@ -682,7 +722,7 @@ const step = async ($: $) => {
   // einem Neuladen der App). Fehlt es, öffnet es sich von selbst wieder.
   if (Number(await read($, tick)) % 4 === 0) {
     const mine = (await $.ui.panes()).find(x => x.id === PANE)
-    await $.store.set('paneCheck', { at: await $.clock.now(), listed: mine !== undefined, shown: mine?.isShown ?? false, placed: mine?.isPlaced ?? false })
+    await $.store.set('paneCheck', { at: await $.clock.now(), listed: mine !== undefined, shown: mine?.isShown ?? false, placed: mine?.isPlaced ?? false, columns: lastColumns })
     if (mine === undefined && !isDismissed) await openPane($)
   }
 
@@ -690,20 +730,16 @@ const step = async ($: $) => {
   const elapsed = ((await $.clock.now()) - (await read($, startedAt))) / 1000
   const typical = await typicalWait($)
   if (await read($, isLanding)) {
-    // Früh gelandet, aber Claude braucht doch deutlich länger: weiter mit Übungen.
-    if (isEarlyLanding && typical !== undefined && elapsed > typical + 60) {
-      isEarlyLanding = false
-      await update($, isLanding, () => false)
-      await start($, await choose($))
-    }
     return
   }
   const now = await read($, run)
   if (now === null) {
-    // Die ersten Sekunden: Ankommen. Danach die erste Übung.
+    // Die ersten Sekunden: Ankommen. Zwischen zwei Übungen: kurze Atempause.
     if (elapsed * 1000 < OPEN_DELAY_MS) return
+    if ((await $.clock.now()) < breathUntil) return
+    const isFirst = slot === 0
     await start($, await choose($))
-    await bump($, 'waits', 1)
+    if (isFirst) await bump($, 'waits', 1)
     return
   }
   const ex = byId(now.id)
@@ -838,6 +874,7 @@ export const register: Register = on => {
     stimulating = 0
     isBreakShown = false
     isEarlyLanding = false
+    breathUntil = 0
     shown = []
     await update($, readiness, () => 0)
     if (e.text.trim() !== '') await update($, ask, () => short(e.text, 220))
@@ -914,12 +951,15 @@ export const register: Register = on => {
   // --- Zeichnen -------------------------------------------------------------
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
+    lastColumns = e.props.bodyColumns
     const els = $.ui.resolve(e)
     const { Box, Text, Button, Input } = els
     // Wo die Oberfläche keine Grafik zeichnet (Terminal), steht der Text da.
     const Svg = 'Svg' in els ? els.Svg : undefined
     const card = (source: string, alt: string) =>
-      Svg !== undefined ? <Svg source={source} alt={alt} isInteractive /> : <Text bold>{alt}</Text>
+      // Als Bild eingebettet: passt sich der Panelbreite an und wächst beim Breiterziehen
+      // mit (ein interaktiver Rahmen hätte eine feste Größe). Animationen laufen weiter.
+      Svg !== undefined ? <Svg source={source} alt={alt} /> : <Text bold>{alt}</Text>
     const now = await read($, phase)
     const written = await read($, notes)
     const pref = await read($, prefs)
@@ -946,7 +986,7 @@ export const register: Register = on => {
           ))}
           <Text bold>Extras</Text>
           {toggle('opt-sound', pref.sound, 'Sanfter Ton, wenn Claude fertig ist (und echte Pause nach 3 Min.)', x => ({ ...x, sound: !x.sound }))}
-          {toggle('opt-refocus', pref.refocus, 'Rückkehr-Fragen kurz vor der Antwort', x => ({ ...x, refocus: !x.refocus }))}
+          {toggle('opt-refocus', pref.refocus, 'Kurzfassung deines Prompts kurz vor der Antwort (per kleinem Claude-Modell)', x => ({ ...x, refocus: !x.refocus }))}
           {toggle('opt-pad', pref.pad, 'Kurz vor dem Ende fragen: Was sagst du Claude als Nächstes?', x => ({ ...x, pad: !x.pad }))}
           {toggle('opt-rating', pref.rating, 'Ab und zu fragen: Wie bereit fühlst du dich?', x => ({ ...x, rating: !x.rating }))}
           <Button key="settings-done" variant="primary" onPress={() => setView($, 'main')}>
@@ -966,22 +1006,22 @@ export const register: Register = on => {
     // sichtbar und kopierbar, bis du den nächsten Prompt abschickst.
     const nextPrompt = !pref.pad ? null : (written.prompt ?? '') === '' ? (
       <Box flexDirection="column" gap="sm">
-        <Text bold>📝 Was sagst du Claude als Nächstes?</Text>
+        <Text bold>📝 Dein nächster Prompt</Text>
         <Input
           key="prompt-pad"
-          placeholder="Schon mal festhalten (optional) …"
-          submitLabel="Merken"
+          placeholder="Was sagst du Claude als Nächstes? (optional)"
+          submitLabel="Ins Chatfeld"
           rows={2}
-          onSubmit={v => void savePad($, v)}
+          onSubmit={v => void padToChat($, v)}
         />
       </Box>
     ) : (
       <Box flexDirection="column" gap="sm">
-        <Text dimColor>📝 Dein nächster Prompt</Text>
+        <Text dimColor>📝 Dein nächster Prompt (steht im Chatfeld)</Text>
         <Text bold>{written.prompt}</Text>
         <Box gap="sm">
           <Button key="pad-fill" variant="primary" onPress={() => fillPrompt($)}>
-            In die Chat-Eingabe
+            Nochmal ins Chatfeld
           </Button>
           <Button key="pad-copy" onPress={press => copyPrompt($, press.surface)}>
             Kopieren
@@ -1066,15 +1106,10 @@ export const register: Register = on => {
 
     await read($, tick)
     if (await read($, isLanding)) {
-      const qs = await read($, refocus)
-      const asked = await read($, ask)
+      const summary = (await read($, refocus))[0] ?? (await read($, ask))
       return (
         <Box flexDirection="column" gap="md">
-          {card(promptCard(PALETTES.done, 'Gleich geht’s weiter', 'Claude schreibt gerade die Antwort. Komm schon mal zurück zu deinem Thema.'), 'Gleich geht’s weiter')}
-          {asked !== '' && <Text dimColor>Du hattest gefragt: „{asked}“</Text>}
-          {qs.map(q => (
-            <Text bold>→ {q}</Text>
-          ))}
+          {card(promptCard(PALETTES.done, 'Gleich geht’s weiter', summary !== '' ? summary : 'Claude ist gleich fertig.'), summary)}
           {nextPrompt}
         </Box>
       )
@@ -1104,10 +1139,12 @@ export const register: Register = on => {
     if (r === null) {
       return (
         <Box flexDirection="column" gap="md">
-          {card(
-            promptCard(PALETTES.breathe, 'Ankommen', 'Claude legt los. Ein ruhiger Atemzug – in ein paar Sekunden kommt deine Übung.'),
-            'Claude legt los. Ein ruhiger Atemzug.',
-          )}
+          {slot === 0
+            ? card(
+                promptCard(PALETTES.breathe, 'Ankommen', 'Claude legt los. Ein ruhiger Atemzug – in ein paar Sekunden kommt deine Übung.'),
+                'Claude legt los. Ein ruhiger Atemzug.',
+              )
+            : card(promptCard(PALETTES.breathe, 'Kurz durchatmen', 'Ein Atemzug. Gleich kommt die nächste Übung.'), 'Kurz durchatmen.')}
           {footer}
         </Box>
       )

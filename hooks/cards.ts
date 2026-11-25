@@ -177,7 +177,13 @@ export const stepCard = (
 ) =>
   frame(
     p,
-    `${label(p, title)}${badge ? corner(p, badge) : ''}<g class="float">${lines(p, wrap(step, 26), 140, 21)}</g>${count > 1 ? dots(p, count, at) : ''}`,
+    `${label(p, title)}${badge ? corner(p, badge) : ''}<g class="float">${
+      step.length > 170
+        ? lines(p, wrap(step, 40), 140, 13.5)
+        : step.length > 110
+          ? lines(p, wrap(step, 34), 140, 16)
+          : lines(p, wrap(step, 26), 140, 21)
+    }</g>${count > 1 ? dots(p, count, at) : ''}`,
   )
 
 export const promptCard = (p: Palette, title: string, question: string, total = 0, badge = '') => {

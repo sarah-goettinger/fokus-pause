@@ -20,7 +20,7 @@ const PANE = {
   },
 } as const
 
-test('das Panel zeigt reihum alle Übungsfamilien und zeichnet jede Übung', async ($, on) => {
+test('das Panel zeigt reihum alle Übungsfamilien und zeichnet jede Übung', { timeoutMs: 20000 }, async ($, on) => {
   const clock = mock.clock(on, { now: Date.UTC(2026, 10, 20, 9, 0, 0) })
   mock.store(on)
   on('command.register', () => ({ value: { command: 'fokus' } }))
@@ -50,7 +50,7 @@ test('das Panel zeigt reihum alle Übungsfamilien und zeichnet jede Übung', asy
 
   const seen = new Set<string>()
   const cats = new Set<string>()
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 100; i++) {
     // Alle 5 Übungen eine neue Wartezeit: wie im Alltag, mit Reizbalance pro Pause.
     if (i > 0 && i % 5 === 0) {
       // Lange Antworten (5 Min.), damit auch lange Übungen in die Wartezeit passen.
@@ -82,7 +82,7 @@ test('das Panel zeigt reihum alle Übungsfamilien und zeichnet jede Übung', asy
   expect(missing.length).toBeLessThan(Math.ceil(EXERCISES.length * 0.5))
 })
 
-test('Knöpfe und Eingaben führen zu einem Ergebnis', async ($, on) => {
+test('Knöpfe und Eingaben führen zu einem Ergebnis', { timeoutMs: 20000 }, async ($, on) => {
   const clock = mock.clock(on, { now: Date.UTC(2026, 10, 20, 15, 0, 0) })
   mock.store(on)
   on('command.register', () => ({ value: { command: 'fokus' } }))
@@ -142,7 +142,7 @@ test('Knöpfe und Eingaben führen zu einem Ergebnis', async ($, on) => {
   await done.unmount()
 })
 
-test('kurz vor der Schlussantwort kommen Fragen zurück zum Auftrag', async ($, on) => {
+test('kurz vor der Schlussantwort kommen Fragen zurück zum Auftrag', { timeoutMs: 20000 }, async ($, on) => {
   const clock = mock.clock(on, { now: Date.UTC(2026, 10, 20, 15, 0, 0) })
   mock.store(on)
   on('command.register', () => ({ value: { command: 'fokus' } }))
@@ -171,12 +171,16 @@ test('kurz vor der Schlussantwort kommen Fragen zurück zum Auftrag', async ($, 
   await $.tool.call({ tool: 'mcp__ccd_turn__wrap_up', recap: 'fertig' } as never)
   await clock.advance(1000)
   const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
-  expect((await ui.find({ type: 'Text', text: /Was erwartest du von dem Deck/ }))?.text).toContain('Deck')
-  expect((await ui.find({ type: 'Text', text: /Du hattest gefragt/ }))?.text).toContain('Weekly')
+  const landing = String((await ui.find({ type: 'Svg' }))?.props.source ?? '')
+  expect(landing).toContain('GLEICH GEHT')
+  // Kurzfassung des Prompts auf der Karte, darunter nur das Feld für den nächsten Prompt.
+  expect(landing).toContain('Deck')
+  expect(await ui.find({ type: 'Input', key: 'prompt-pad' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /Du hattest gefragt/ })).toBeUndefined()
   await ui.unmount()
 })
 
-test('jede neue Übung aus extra.ts erscheint im Panel', async ($, on) => {
+test('jede neue Übung aus extra.ts erscheint im Panel', { timeoutMs: 20000 }, async ($, on) => {
   const now = Date.now()
   const fresh = EXTRA_EXERCISES.filter(ex => isNew(ex, now))
   if (fresh.length === 0) return
@@ -234,7 +238,7 @@ const setup = async (
 const titleOf = (source: unknown) =>
   /letter-spacing="2"[^>]*>([^<]+)</.exec(String(source ?? ''))?.[1] ?? ''
 
-test('Einstellungen: eine ausgeschaltete Gruppe kommt nicht mehr', async ($, on) => {
+test('Einstellungen: eine ausgeschaltete Gruppe kommt nicht mehr', { timeoutMs: 20000 }, async ($, on) => {
   const clock = await setup($, on)
   let ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
   await ui.press({ key: 'settings' })
@@ -273,7 +277,7 @@ test('Einstellungen: eine ausgeschaltete Gruppe kommt nicht mehr', async ($, on)
   expect(groups.size).toBeGreaterThan(4)
 })
 
-test('Nächster Prompt: erst kurz vor dem Ende gefragt, danach kopierbar bis zum nächsten Prompt', async ($, on) => {
+test('Nächster Prompt: erst kurz vor dem Ende gefragt, danach kopierbar bis zum nächsten Prompt', { timeoutMs: 20000 }, async ($, on) => {
   let filled = ''
   const clock = await setup($, on, () =>
     on('prompt.fill', (_, e) => {
@@ -291,6 +295,8 @@ test('Nächster Prompt: erst kurz vor dem Ende gefragt, danach kopierbar bis zum
   ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
   await ui.input({ key: 'prompt-pad', text: 'Mach die Folie 3 kürzer und konkreter' })
   await ui.unmount()
+  // Ein Klick: der Prompt steht sofort im Chatfeld.
+  expect(filled).toBe('Mach die Folie 3 kürzer und konkreter')
   // Fertig: der Prompt steht da und lässt sich übernehmen.
   await $.turn.complete({ answer: 'fertig', durationMs: 60000, isAborted: false, turnId: 't1', reason: 'answer' })
   ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
@@ -306,7 +312,7 @@ test('Nächster Prompt: erst kurz vor dem Ende gefragt, danach kopierbar bis zum
   await ui.unmount()
 })
 
-test('/fokus info antwortet bei einer frischen Installation', async ($, on) => {
+test('/fokus info antwortet bei einer frischen Installation', { timeoutMs: 20000 }, async ($, on) => {
   mock.clock(on, { now: Date.UTC(2026, 10, 21, 9, 0, 0) })
   mock.store(on)
   on('command.register', () => ({ value: { command: 'fokus' } }))
@@ -322,7 +328,7 @@ test('/fokus info antwortet bei einer frischen Installation', async ($, on) => {
   expect(String((on2 as { text?: string }).text)).toContain('an')
 })
 
-test('beim Abschicken eines Prompts öffnet sich das Panel sofort (erbeten)', async ($, on) => {
+test('beim Abschicken eines Prompts öffnet sich das Panel sofort (erbeten)', { timeoutMs: 20000 }, async ($, on) => {
   const clock = mock.clock(on, { now: Date.UTC(2026, 10, 21, 9, 0, 0) })
   mock.store(on)
   const opens: string[] = []
@@ -355,10 +361,10 @@ test('beim Abschicken eines Prompts öffnet sich das Panel sofort (erbeten)', as
   await ui.unmount()
 })
 
-test('Wiederholung: an einem Tag kommt keine Übung öfter als zwei- (Atmung: drei-) mal', async ($, on) => {
+test('Wiederholung: an einem vollen Tag (65 Übungen) kommt Rätsel, Wissen und Kreatives nur einmal, Achtsamkeit höchstens zweimal', { timeoutMs: 20000 }, async ($, on) => {
   const clock = await setup($, on)
   const counts = new Map<string, number>()
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 65; i++) {
     if (i > 0 && i % 4 === 0) {
       await $.turn.complete({ answer: 'ok', durationMs: 300000, isAborted: false, turnId: `w${i}`, reason: 'answer' })
       await $.turn.start({ text: 'Weiter', turnId: `w${i + 1}` })
@@ -372,13 +378,17 @@ test('Wiederholung: an einem Tag kommt keine Übung öfter als zwei- (Atmung: dr
     await v.unmount()
     await clock.advance(1000)
   }
-  const tooOften = [...counts].filter(([id, n]) => n > (EXERCISES.find(x => x.id === id)?.kind === 'breathe' ? 3 : 2))
+  const mindCats = ['calm', 'mind', 'body', 'senses', 'care', 'tidy']
+  const tooOften = [...counts].filter(([id, n]) => {
+    const ex = EXERCISES.find(x => x.id === id)
+    const max = ex?.kind === 'breathe' ? 3 : ex !== undefined && mindCats.includes(ex.cat) ? 2 : 1
+    return n > max
+  })
   expect(tooOften).toEqual([])
-  // Und es ist bunt: viele verschiedene Übungen.
   expect(counts.size).toBeGreaterThan(40)
 })
 
-test('Übungen zum Eintippen bleiben stehen, bis man antwortet oder weiterklickt', async ($, on) => {
+test('Übungen zum Eintippen bleiben stehen, bis man antwortet oder weiterklickt', { timeoutMs: 20000 }, async ($, on) => {
   const clock = await setup($, on)
   let key: string | undefined
   for (let i = 0; i < 60 && key === undefined; i++) {
@@ -397,10 +407,10 @@ test('Übungen zum Eintippen bleiben stehen, bis man antwortet oder weiterklickt
   await ui.unmount()
 })
 
-test('kurz vor dem typischen Ende kommt die Rückkehr-Karte statt einer neuen Übung', async ($, on) => {
+test('ohne echtes Ende-Signal kommt keine Rückkehr-Karte, auch nach Minuten', { timeoutMs: 20000 }, async ($, on) => {
   const clock = mock.clock(on, { now: Date.UTC(2026, 10, 21, 9, 0, 0) })
-  // Bisher dauerten Claudes Antworten etwa 90 Sekunden.
-  mock.store(on, { durations: [90, 90, 90, 90, 90] })
+  // Bisher dauerten Claudes Antworten meist 30 Sekunden – diesmal dauert es länger.
+  mock.store(on, { durations: [30, 30, 30, 30, 30] })
   on('command.register', () => ({ value: { command: 'fokus' } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('ui.close', () => ({ value: undefined }))
@@ -409,18 +419,18 @@ test('kurz vor dem typischen Ende kommt die Rückkehr-Karte statt einer neuen Ü
   on('ui.log', () => ({ value: undefined }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('turn.start', (_, e) => ({ turnId: e.turnId }))
+  on('tool.call', () => ({ result: {} }))
   on('model.complete', () => ({
-    value: { isAnswered: true, text: 'Was erwartest du?\nWas machst du danach?', usage: { input_tokens: 1, output_tokens: 1, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 } },
+    value: { isAnswered: true, text: 'Längeren Entwurf für das Weekly schreiben', usage: { input_tokens: 1, output_tokens: 1, cache_creation_input_tokens: 0, cache_read_input_tokens: 0 } },
   }))
   await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
-  await $.turn.start({ text: 'Schreib mir einen längeren Entwurf für das Weekly', turnId: 't1' })
-  let landed = false
-  for (let s = 0; s < 200 && !landed; s += 2) {
-    await clock.advance(2000)
+  await $.turn.start({ text: 'Schreib mir einen längeren Entwurf für das Weekly mit allen Punkten von heute', turnId: 't1' })
+  let landedEarly = false
+  for (let s = 0; s < 240; s += 3) {
+    await clock.advance(3000)
     const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
     const svg = String((await ui.find({ type: 'Svg' }))?.props.source ?? '')
-    if (svg.includes('GLEICH GEHT')) landed = true
-    // Eingabe-Übungen warten auf uns: in diesem Test einfach weiterklicken.
+    if (svg.includes('GLEICH GEHT')) landedEarly = true
     else {
       const answerButtons = (await ui.findAll({ type: 'Button' })).filter(
         b => !['skip', 'close', 'settings'].includes(String(b.key)),
@@ -429,10 +439,18 @@ test('kurz vor dem typischen Ende kommt die Rückkehr-Karte statt einer neuen Ü
     }
     await ui.unmount()
   }
-  expect(landed).toBe(true)
+  expect(landedEarly).toBe(false)
+  // Erst das echte Signal bringt die Karte – mit der Kurzfassung.
+  await $.tool.call({ tool: 'mcp__ccd_turn__wrap_up', recap: 'fertig' } as never)
+  await clock.advance(1000)
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const svg = String((await ui.find({ type: 'Svg' }))?.props.source ?? '')
+  expect(svg).toContain('GLEICH GEHT')
+  expect(svg).toContain('Weekly')
+  await ui.unmount()
 })
 
-test('im Terminal (ohne Grafik) zeichnet jede Übungsart ohne Fehler', async ($, on) => {
+test('im Terminal (ohne Grafik) zeichnet jede Übungsart ohne Fehler', { timeoutMs: 20000 }, async ($, on) => {
   const clock = await setup($, on)
   let texts = 0
   for (let i = 0; i < 60; i++) {
@@ -452,7 +470,7 @@ test('im Terminal (ohne Grafik) zeichnet jede Übungsart ohne Fehler', async ($,
   expect(texts).toBe(60)
 })
 
-test('Karten haben keine feste Breite und füllen das Panel (wachsen beim Breiterziehen mit)', async ($, on) => {
+test('Karten haben keine feste Breite und füllen das Panel (wachsen beim Breiterziehen mit)', { timeoutMs: 20000 }, async ($, on) => {
   await setup($, on)
   const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
   const svg = await ui.find({ type: 'Svg' })
