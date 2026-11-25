@@ -451,3 +451,14 @@ test('im Terminal (ohne Grafik) zeichnet jede Übungsart ohne Fehler', async ($,
   }
   expect(texts).toBe(60)
 })
+
+test('Karten haben keine feste Breite und füllen das Panel (wachsen beim Breiterziehen mit)', async ($, on) => {
+  await setup($, on)
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const svg = await ui.find({ type: 'Svg' })
+  expect(svg?.props.width).toBeUndefined()
+  const w = Number(/<svg[^>]*\swidth="(\d+(?:\.\d+)?)"/.exec(String(svg?.props.source ?? ''))?.[1] ?? 0)
+  expect(w).toBeGreaterThan(1500)
+  expect(String(svg?.props.source ?? '')).toContain('viewBox="0 0 360 280"')
+  await ui.unmount()
+})

@@ -53,8 +53,10 @@ export const wrap = (text: string, max: number): string[] => {
   return out
 }
 
-// Gezeichnet wird auf 360×280, angezeigt größer; ist das Panel schmaler, schrumpft die Karte mit.
-const SCALE = 1.5
+// Gezeichnet wird auf 360×280. Die Karte ist so groß angelegt, dass sie immer die
+// volle Breite des Panels füllt: Ziehst du das Panel breiter, wächst sie mit, wird es
+// schmaler, schrumpft sie – die Proportionen bleiben gleich.
+const SCALE = 5
 const frame = (p: Palette, inner: string, style = '') => `<svg xmlns="http://www.w3.org/2000/svg" width="${W * SCALE}" height="${H * SCALE}" viewBox="0 0 ${W} ${H}">
 <defs>
 <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${p.from}"/><stop offset="1" stop-color="${p.to}"/></linearGradient>

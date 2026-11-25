@@ -1,5 +1,8 @@
 # Fokus-Pause – Was neu ist
 
+## 0.10.1
+- Die Übungskarten füllen die ganze Breite des Panels und wachsen mit, wenn du den Bereich breiter ziehst.
+
 ## 0.10.0 · Erste öffentliche Version
 - Panel öffnet sich beim Abschicken eines Prompts, mit kurzer „Ankommen“-Karte; Übungen starten nach ein paar Sekunden.
 - Über 75 Übungen in vier Gruppen: Rätsel & Spiele · Achtsamkeit & Körper · Wissen & Claude-Tipps · Kreativ & Reflexion. Zu jeder Tageszeit gemischt.

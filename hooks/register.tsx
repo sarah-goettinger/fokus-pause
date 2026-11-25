@@ -40,7 +40,7 @@ import { beginPick, pickedKeys } from './pools'
 
 const PANE = 'fokus-pause'
 // Steht nach dem Laden im Store („loaded“): so lässt sich prüfen, welche Version läuft.
-const VERSION = '10.1'
+const VERSION = '10.2'
 const TITLE = 'Fokus-Pause'
 // Erst nach so vielen Sekunden aufgehen, damit kurze Antworten nicht stören.
 const OPEN_DELAY_MS = 6000
